@@ -1,4 +1,6 @@
+const { ObjectId } = require("mongodb");
 const Posts = require("../models/posts");
+const Comments = require("../models/comments");
 
 module.exports = {
   createPost: async (description, author, gif, location) => {
@@ -22,6 +24,7 @@ module.exports = {
     const posts = await Posts.find({})
       .skip(perPage * page - perPage)
       .limit(perPage);
+
     return posts;
   },
 
@@ -40,7 +43,6 @@ module.exports = {
       likes.push(userid);
     }
     const updated = await Posts.updateOne({ _id: postid }, { likes: likes });
-    console.log(updated);
     return updated;
   },
 
@@ -48,5 +50,61 @@ module.exports = {
     const post = await Posts.findOne({ _id: postid });
     const likes = post.likes;
     return likes.includes(userid);
+  },
+
+  getPosts: async (description) => {
+    const posts = await Posts.find({ $text: { $search: description } });
+    return posts;
+  },
+
+  getPostsByRadio: async (start, end, yourposition) => {
+    const radiosposts = await Posts.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [yourposition[0], yourposition[1]],
+          },
+          $minDistance: start,
+          $maxDistance: end,
+        },
+      },
+    });
+
+    return radiosposts;
+  },
+  getpostbyuserid: async (id) => {
+    const posts = await Posts.find({ author: id });
+    return posts;
+  },
+  getmostliked: async (id) => {
+    // do aggregation to get the most liked post that the user is also liked
+    const post = await Posts.aggregate([
+      {
+        $match: {
+          likes: new ObjectId(id),
+        },
+      },
+      {
+        $sort: {
+          likes: -1,
+        },
+      },
+      {
+        $limit: 1,
+      },
+    ]);
+    return post;
+  },
+
+  deletePost: async (id) => {
+    await Comments.deleteMany({ postid: _id });
+
+    const deleted = await Posts.deleteOne({ _id: id });
+    return deleted;
+  },
+  getpostbyid: async (id) => {
+    const post = await Posts.findOne({ _id: id });
+    return post;
   },
 };

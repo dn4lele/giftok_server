@@ -1,5 +1,7 @@
 const Users = require("../models/users");
 const Posts = require("../models/posts");
+const Comments = require("../models/comments");
+const { ObjectId } = require("mongodb");
 
 module.exports = {
   getUser: async (nameoremail, pass) => {
@@ -48,8 +50,8 @@ module.exports = {
     return updated;
   },
 
-  getUserPic: async (username) => {
-    const user = await Users.findOne({ name: username });
+  getUserPic: async (id) => {
+    const user = await Users.findOne({ _id: id });
     return user;
   },
   deleteUser: async (id) => {
@@ -77,8 +79,95 @@ module.exports = {
         post.likes.splice(index, 1);
         await post.save();
       }
+      if (post.author == id) {
+        await Comments.deleteMany({ postid: post._id });
+        await Posts.deleteOne({ _id: post._id });
+      }
     });
 
     return deleted;
+  },
+
+  getUsers: async (name) => {
+    //i have index text on name
+    const users = await Users.find({ $text: { $search: name } });
+    return users;
+  },
+
+  getUserbyid: async (id) => {
+    const user = await Users.findOne({ _id: id });
+    return user;
+  },
+
+  updateUserFollow: async (follwer, follow) => {
+    //if the follow in the follwer list remove it
+    const user = await Users.findOne({ _id: follwer });
+    if (user.followers.includes(follow)) {
+      const index = user.followers.indexOf(follow);
+      user.followers.splice(index, 1);
+      await user.save();
+
+      const user2 = await Users.findOne({ _id: follow });
+      const index2 = user2.following.indexOf(follwer);
+      user2.following.splice(index2, 1);
+      await user2.save();
+
+      return [user, "follow"];
+    } else {
+      user.followers.push(follow);
+      await user.save();
+
+      const user2 = await Users.findOne({ _id: follow });
+      user2.following.push(follwer);
+      await user2.save();
+
+      return [user, "unfollow"];
+    }
+  },
+
+  getmostfollowers: async (id) => {
+    const mostFollowers = await Users.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: {
+          path: "$following",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "following",
+          foreignField: "_id",
+          as: "theuser",
+        },
+      },
+      {
+        $unwind: {
+          path: "$theuser",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: "$theuser._id",
+          name: { $first: "$theuser.name" },
+          image: { $first: "$theuser.image" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { count: -1 },
+      },
+      {
+        $limit: 1,
+      },
+    ]);
+
+    return mostFollowers;
   },
 };

@@ -1,9 +1,10 @@
+const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
 const postsSchema = new Schema({
   description: String,
-  author: String,
+  author: ObjectId,
   gif: String,
   location: {
     type: { type: String, default: "Point" },
