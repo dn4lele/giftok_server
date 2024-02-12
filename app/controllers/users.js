@@ -47,7 +47,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const user = await getUserPic(id);
-      res.json([user.image, user.name]);
+      res.json([user.image, user.name, id]);
     } catch (err) {
       res.status(500).send(err);
     }
