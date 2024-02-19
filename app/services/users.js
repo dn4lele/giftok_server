@@ -170,4 +170,76 @@ module.exports = {
 
     return mostFollowers;
   },
+  getuserfollowers: async (id) => {
+    const followers = await Users.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: {
+          path: "$followers",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "followers",
+          foreignField: "_id",
+          as: "followers",
+        },
+      },
+      {
+        $unwind: {
+          path: "$followers",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $project: {
+          followers: 1,
+        },
+      },
+    ]);
+    console.log(followers);
+    return followers;
+  },
+  getuserfollowing: async (id) => {
+    const following = await Users.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: {
+          path: "$following",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "following",
+          foreignField: "_id",
+          as: "following",
+        },
+      },
+      {
+        $unwind: {
+          path: "$following",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $project: {
+          following: 1,
+        },
+      },
+    ]);
+    console.log(following);
+    return following;
+  },
 };

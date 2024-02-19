@@ -1,3 +1,4 @@
+const { route } = require("..");
 const controller = require("../controllers/users");
 const router = require("express").Router();
 
@@ -7,6 +8,8 @@ router.get("/", controller.getUser);
 router.get("/getuser/:id", controller.getUserbyid);
 router.get("/getmostfollowers/:id", controller.getmostfollowers);
 router.get("/wasfollow/:follwer/:thefollow", controller.wasfollow);
+router.get("/getfollowers/:id", controller.getfollowers);
+router.get("/getfollowing/:id", controller.getfollowing);
 
 router.post("/", controller.createUser);
 

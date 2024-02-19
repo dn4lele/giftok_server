@@ -8,6 +8,8 @@ const {
   getUserbyid,
   updateUserFollow,
   getmostfollowers,
+  getuserfollowers,
+  getuserfollowing,
 } = require("../services/users");
 const { getsmallgif } = require("../utils/picturs");
 module.exports = {
@@ -104,6 +106,24 @@ module.exports = {
       const user = await getUserbyid(follwer);
       const wasfollow = user.followers.includes(thefollow);
       res.json(wasfollow);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  },
+  getfollowers: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const users = await getuserfollowers(id);
+      res.json(users);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  },
+  getfollowing: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const users = await getuserfollowing(id);
+      res.json(users);
     } catch (err) {
       res.status(500).send(err);
     }
