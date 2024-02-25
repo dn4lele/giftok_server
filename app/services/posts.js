@@ -98,7 +98,14 @@ module.exports = {
   },
 
   deletePost: async (id) => {
-    await Comments.deleteMany({ postid: _id });
+    console.log("before delete comments");
+    try {
+      await Comments.deleteMany({ postid: _id });
+    } catch (err) {
+      console.log(err);
+    }
+
+    console.log("after delete comments");
 
     const deleted = await Posts.deleteOne({ _id: id });
     return deleted;
