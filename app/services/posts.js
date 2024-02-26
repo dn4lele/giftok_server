@@ -49,7 +49,7 @@ module.exports = {
   youliked: async (postid, userid) => {
     const post = await Posts.findOne({ _id: postid });
     const likes = post.likes;
-    return likes.includes(userid);
+    return likes;
   },
 
   getPosts: async (description) => {
@@ -78,23 +78,15 @@ module.exports = {
     return posts;
   },
   getmostliked: async (id) => {
-    // do aggregation to get the most liked post that the user is also liked
-    const post = await Posts.aggregate([
-      {
-        $match: {
-          likes: new ObjectId(id),
-        },
-      },
-      {
-        $sort: {
-          likes: -1,
-        },
-      },
-      {
-        $limit: 1,
-      },
-    ]);
-    return post;
+    //get the most liked post that you also liked
+    const likedPosts = await Posts.find({ likes: id });
+    const mostLikedPost = await Posts.findOne({
+      _id: { $in: likedPosts },
+      likes: id,
+    })
+      .sort({ likes: -1 })
+      .limit(1);
+    return mostLikedPost;
   },
 
   deletePost: async (id) => {

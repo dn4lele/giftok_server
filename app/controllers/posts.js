@@ -66,7 +66,7 @@ module.exports = {
     try {
       const { postid, userid } = req.params;
       const updated = await youliked(postid, userid);
-      res.json(updated);
+      res.json(updated.includes(userid));
     } catch (err) {
       res.status(500).send(err);
     }
@@ -116,7 +116,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const post = await getmostliked(id);
-      res.json(post);
+      res.json([post]);
     } catch (err) {
       res.status(500).send(err);
     }
