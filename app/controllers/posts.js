@@ -10,6 +10,7 @@ const {
   getmostliked,
   deletePost,
   getpostbyid,
+  getpostwithmostcomments,
 } = require("../services/posts");
 const { getgifsbyname } = require("../utils/picturs");
 
@@ -136,6 +137,14 @@ module.exports = {
       const { id } = req.params;
       const post = await getpostbyid(id);
       res.json(post);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  },
+  postwithmostcomments: async (req, res) => {
+    try {
+      const posts = await getpostwithmostcomments();
+      res.json(posts);
     } catch (err) {
       res.status(500).send(err);
     }

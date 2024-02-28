@@ -10,6 +10,7 @@ router.get("/getmostfollowers/:id", controller.getmostfollowers);
 router.get("/wasfollow/:follwer/:thefollow", controller.wasfollow);
 router.get("/getfollowers/:id", controller.getfollowers);
 router.get("/getfollowing/:id", controller.getfollowing);
+router.get("/top3TotalMostLikes", controller.top3TotalMostLikes);
 
 router.post("/", controller.createUser);
 

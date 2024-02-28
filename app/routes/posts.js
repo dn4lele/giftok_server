@@ -10,6 +10,7 @@ router.get("/getpostbyradio/:radios/:yourposition", controller.getPostsByRadio);
 router.get("/getpostbyuserid/:id", controller.getpostbyuserid);
 router.get("/getmostliked/:id", controller.getmostliked);
 router.get("/getpostbyid/:id", controller.getpostbyid);
+router.get("/postwithmostcomments", controller.postwithmostcomments);
 
 router.patch("/addlike/:postid/:userid", controller.addlike);
 

@@ -106,4 +106,29 @@ module.exports = {
     const post = await Posts.findOne({ _id: id });
     return post;
   },
+
+  getpostwithmostcomments: async () => {
+    const postWithMostComments = await Posts.aggregate([
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "postid",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          commentCount: { $size: "$comments" },
+        },
+      },
+      {
+        $sort: { commentCount: -1 },
+      },
+      {
+        $limit: 1,
+      },
+    ]);
+    return postWithMostComments;
+  },
 };

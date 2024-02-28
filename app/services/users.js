@@ -89,9 +89,16 @@ module.exports = {
   },
 
   getUsers: async (name) => {
-    //i have index text on name
-    const users = await Users.find({ $text: { $search: name } });
+    //get users by name with regex
+    const users = await Users.find({ name: { $regex: name, $options: "i" } });
     return users;
+
+    //better to do by regex because if i input daniel regex will return danielcool user and by $text it will not
+
+    //i have index text on name
+    /*
+    const users = await Users.find({ $text: { $search: name } });
+    return users;*/
   },
 
   getUserbyid: async (id) => {
@@ -158,7 +165,7 @@ module.exports = {
           _id: "$theuser._id",
           name: { $first: "$theuser.name" },
           image: { $first: "$theuser.image" },
-          count: { $sum: 1 },
+          count: { $sum: { $size: "$theuser.followers" } },
         },
       },
       {
@@ -168,7 +175,6 @@ module.exports = {
         $limit: 1,
       },
     ]);
-
     return mostFollowers;
   },
   getuserfollowers: async (id) => {
@@ -204,7 +210,6 @@ module.exports = {
         },
       },
     ]);
-    console.log(followers);
     return followers;
   },
   getuserfollowing: async (id) => {
@@ -240,7 +245,48 @@ module.exports = {
         },
       },
     ]);
-    console.log(following);
     return following;
+  },
+  gettop3TotalMostLikes: async () => {
+    //i want it to return me the top 3 users with the most total likes in their account
+    //lookup every post group by author and sum the likes and to show also the likes amount
+
+    const top3TotalMostLikes = await Posts.aggregate([
+      {
+        $group: {
+          _id: "$author",
+          count: { $sum: { $size: "$likes" } },
+        },
+      },
+      {
+        $sort: { count: -1 },
+      },
+      {
+        $limit: 3,
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $project: {
+          name: "$user.name",
+          image: "$user.image",
+          count: 1,
+        },
+      },
+    ]);
+
+    return top3TotalMostLikes;
   },
 };

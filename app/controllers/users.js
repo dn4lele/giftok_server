@@ -10,6 +10,7 @@ const {
   getmostfollowers,
   getuserfollowers,
   getuserfollowing,
+  gettop3TotalMostLikes,
 } = require("../services/users");
 const { getsmallgif } = require("../utils/picturs");
 module.exports = {
@@ -123,6 +124,14 @@ module.exports = {
     try {
       const { id } = req.params;
       const users = await getuserfollowing(id);
+      res.json(users);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  },
+  top3TotalMostLikes: async (req, res) => {
+    try {
+      const users = await gettop3TotalMostLikes();
       res.json(users);
     } catch (err) {
       res.status(500).send(err);

@@ -11,5 +11,7 @@ const usersSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+usersSchema.index({ name: "text" }, { default_language: "none" });
+
 const Users = model("Users", usersSchema);
 module.exports = Users;

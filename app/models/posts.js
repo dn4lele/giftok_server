@@ -16,5 +16,8 @@ const postsSchema = new Schema({
   likes: [Schema.Types.ObjectId],
 });
 
+postsSchema.index({ description: "text" }, { default_language: "none" });
+postsSchema.index({ location: "2dsphere" });
+
 const Posts = model("Posts", postsSchema);
 module.exports = Posts;
